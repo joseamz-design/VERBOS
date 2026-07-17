@@ -6,29 +6,46 @@
 <title>Examen Virtual · Simple Past</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- decorative floating background -->
+<div class="bg-scene" aria-hidden="true">
+  <span class="blob blob--a"></span>
+  <span class="blob blob--b"></span>
+  <span class="blob blob--c"></span>
+</div>
 
 <div class="lab-frame">
 
   <!-- ===== HEADER ===== -->
   <header class="topbar">
     <div class="brand">
-      <svg class="brand__flask" viewBox="0 0 48 48" aria-hidden="true">
-        <path d="M19 4h10v11.2l9.4 17.6c1.7 3.2-.6 7.2-4.2 7.2H13.8c-3.6 0-5.9-4-4.2-7.2L19 15.2V4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-        <path d="M16.5 26.5h15" stroke="currentColor" stroke-width="2.2"/>
-        <line x1="17" y1="4" x2="31" y2="4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-      </svg>
+      <span class="brand__icon">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M19 4h10v11.2l9.4 17.6c1.7 3.2-.6 7.2-4.2 7.2H13.8c-3.6 0-5.9-4-4.2-7.2L19 15.2V4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M16.5 26.5h15" stroke="currentColor" stroke-width="2.2"/>
+          <line x1="17" y1="4" x2="31" y2="4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="21" cy="32" r="1.6" fill="currentColor"/>
+          <circle cx="27" cy="35" r="1.1" fill="currentColor"/>
+        </svg>
+      </span>
       <div class="brand__text">
         <p class="eyebrow">Laboratorio de Inglés</p>
-        <h1>Examen Virtual · Simple Past</h1>
+        <h1>Examen Virtual <span>·</span> Simple Past</h1>
       </div>
     </div>
     <nav class="topnav" aria-label="Navegación principal">
-      <button type="button" class="navbtn" data-nav="home">Inicio</button>
-      <button type="button" class="navbtn" data-nav="history">Historial</button>
+      <button type="button" class="navbtn" data-nav="home">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.5h13V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Inicio
+      </button>
+      <button type="button" class="navbtn" data-nav="history">
+        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4.5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Historial
+      </button>
     </nav>
   </header>
 
@@ -37,12 +54,15 @@
     <section class="intro">
       <p class="intro__kicker">Antes de empezar</p>
       <h2>Elige la sección que quieres rendir</h2>
-      <p class="intro__text">Cada intento genera preguntas nuevas y baraja las alternativas, así que ningún examen es idéntico al anterior. Necesitas al menos <strong>15 / 20</strong> para aprobar. Si no llegas, puedes reintentar las veces que quieras.</p>
+      <p class="intro__text">Cada intento genera preguntas nuevas y baraja las alternativas, así que ningún examen es idéntico al anterior. Necesitas al menos <strong>15 / 20</strong> para aprobar. Si no llegas, reintenta las veces que quieras.</p>
     </section>
 
     <section class="cards">
-      <article class="card" data-type="verbs">
-        <div class="card__num">A</div>
+      <article class="card card--stagger" data-type="verbs" style="--d:0">
+        <div class="card__icon card__icon--blue">
+          <svg viewBox="0 0 48 48"><path d="M19 4h10v11.2l9.4 17.6c1.7 3.2-.6 7.2-4.2 7.2H13.8c-3.6 0-5.9-4-4.2-7.2L19 15.2V4z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><path d="M16.5 26.5h15" stroke="currentColor" stroke-width="2.2"/><line x1="17" y1="4" x2="31" y2="4" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>
+        </div>
+        <span class="card__tag">Sección A</span>
         <h3>40 Verbos Irregulares</h3>
         <p>Se te pedirá el <em>past simple</em> y el <em>past participle</em> de los 40 verbos de tu lista, con 3 alternativas por pregunta.</p>
         <ul class="card__meta">
@@ -50,11 +70,17 @@
           <li>Opción múltiple</li>
           <li>Banco de 80 preguntas posibles</li>
         </ul>
-        <button type="button" class="btn btn--primary" data-start="verbs">Configurar examen</button>
+        <button type="button" class="btn btn--primary" data-start="verbs">
+          Configurar examen
+          <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </article>
 
-      <article class="card" data-type="reading">
-        <div class="card__num">B</div>
+      <article class="card card--stagger" data-type="reading" style="--d:1">
+        <div class="card__icon card__icon--orange">
+          <svg viewBox="0 0 48 48"><path d="M6 10c6-3 12-3 18 0v28c-6-3-12-3-18 0V10z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M42 10c-6-3-12-3-18 0v28c6-3 12-3 18 0V10z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="card__tag">Sección B</span>
         <h3>Reading &amp; Grammar</h3>
         <p>Basado en la carta de Cesc, el experimento Briggs–Rauscher y los ejercicios de preguntas, huecos y orden de palabras.</p>
         <ul class="card__meta">
@@ -62,7 +88,10 @@
           <li>Opción múltiple y respuesta escrita</li>
           <li>Banco de 50 preguntas posibles</li>
         </ul>
-        <button type="button" class="btn btn--primary" data-start="reading">Configurar examen</button>
+        <button type="button" class="btn btn--primary" data-start="reading">
+          Configurar examen
+          <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </article>
     </section>
   </main>
@@ -75,7 +104,10 @@
       <p class="intro__text" id="config-desc"></p>
 
       <label class="field" for="duration-input">
-        <span>Duración del examen (minutos)</span>
+        <span>
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 9v4l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 2h6M12 2v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Duración del examen (minutos)
+        </span>
         <input type="number" id="duration-input" min="1" max="120" value="10" inputmode="numeric">
       </label>
 
@@ -90,13 +122,20 @@
         </div>
         <div class="config-rules__item">
           <span class="config-rules__dot"></span>
+          Al responder verás la corrección al instante y avanzarás solo
+        </div>
+        <div class="config-rules__item">
+          <span class="config-rules__dot"></span>
           Si se acaba el tiempo, el examen se entrega automáticamente
         </div>
       </div>
 
       <div class="config-actions">
         <button type="button" class="btn btn--ghost" data-nav="home">Volver</button>
-        <button type="button" class="btn btn--primary" id="btn-launch">Comenzar examen</button>
+        <button type="button" class="btn btn--primary" id="btn-launch">
+          Comenzar examen
+          <svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
+        </button>
       </div>
     </section>
   </main>
@@ -117,6 +156,8 @@
             </clipPath>
           </defs>
           <rect id="beaker-liquid" x="0" y="20" width="60" height="60" clip-path="url(#beakerClip)"/>
+          <circle class="beaker-bubble" cx="27" cy="55" r="2"/>
+          <circle class="beaker-bubble beaker-bubble--2" cx="34" cy="62" r="1.4"/>
           <path d="M22 4h16v18l12 34c2.4 5.4-1.5 11.4-7.4 11.4H17.4c-5.9 0-9.8-6-7.4-11.4l12-34V4z" fill="none" stroke="var(--paper-2)" stroke-width="2.4" stroke-linejoin="round"/>
           <line x1="20" y1="4" x2="40" y2="4" stroke="var(--paper-2)" stroke-width="3" stroke-linecap="round"/>
         </svg>
@@ -133,21 +174,29 @@
       <div class="progress-fill" id="exam-progress-fill"></div>
     </div>
 
-    <section class="question-card">
-      <p class="question-tag" id="question-tag">Verbo</p>
+    <section class="question-card" id="question-card">
+      <div class="question-tag-row">
+        <span class="question-typeicon" id="question-typeicon"></span>
+        <p class="question-tag" id="question-tag">Verbo</p>
+      </div>
       <h2 class="question-prompt" id="question-prompt">Cargando pregunta…</h2>
 
       <div id="question-options" class="options"></div>
 
       <div id="question-textwrap" class="text-answer hidden">
-        <input type="text" id="question-textinput" autocomplete="off" spellcheck="false" placeholder="Escribe tu respuesta…">
+        <input type="text" id="question-textinput" autocomplete="off" spellcheck="false" placeholder="Escribe tu respuesta y presiona Enter…">
+        <button type="button" class="btn btn--primary btn--answer" id="btn-answer">
+          Responder
+          <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
 
-      <p class="feedback" id="question-feedback"></p>
-
-      <div class="question-actions">
-        <button type="button" class="btn btn--primary" id="btn-check">Comprobar</button>
-        <button type="button" class="btn btn--primary hidden" id="btn-next">Siguiente pregunta</button>
+      <div class="feedback-box hidden" id="feedback-box">
+        <p class="feedback" id="question-feedback"></p>
+        <div class="advance-row">
+          <div class="advance-bar"><div class="advance-bar__fill" id="advance-fill"></div></div>
+          <button type="button" class="btn btn--ghost btn--skip" id="btn-next">Siguiente ahora →</button>
+        </div>
       </div>
     </section>
   </main>
@@ -155,6 +204,7 @@
   <!-- ===== RESULT ===== -->
   <main id="view-result" class="view hidden">
     <section class="result-panel">
+      <div class="result-icon" id="result-icon"></div>
       <p class="intro__kicker" id="result-kicker">Resultado</p>
       <div class="result-score">
         <span id="result-score-number">0</span><span class="result-score__of">/20</span>
@@ -179,7 +229,10 @@
 
       <div class="config-actions">
         <button type="button" class="btn btn--ghost" data-nav="home">Elegir otro examen</button>
-        <button type="button" class="btn btn--primary" id="btn-retry">Reintentar</button>
+        <button type="button" class="btn btn--primary" id="btn-retry">
+          Reintentar
+          <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </section>
   </main>
