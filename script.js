@@ -111,6 +111,7 @@ const READING_POOL = [
 
 const QUESTIONS_PER_EXAM = 20;
 const PASS_SCORE = 15;
+const AUTO_ADVANCE_MS = 1700;
 
 const PASS_MESSAGES = [
   "¡Excelente! Dominas el simple past mejor de lo que crees. Sigue así.",
@@ -127,6 +128,18 @@ const FAIL_MESSAGES = [
   "Te faltó poco. Tómate un minuto para repasar y vuelve a intentarlo con calma.",
   "Sigue practicando: cada repetición fija más los verbos en tu memoria."
 ];
+
+/* =========================================================
+   ICONOS SVG REUTILIZABLES
+   ========================================================= */
+const ICONS = {
+  list: '<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="3.5" cy="6" r="1.5" fill="currentColor"/><circle cx="3.5" cy="12" r="1.5" fill="currentColor"/><circle cx="3.5" cy="18" r="1.5" fill="currentColor"/></svg>',
+  pencil: '<svg viewBox="0 0 24 24"><path d="m4 20 1-4.5L15.5 5l3.5 3.5L8.5 19 4 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 6H4a3 3 0 0 0 3 5M17 6h3a3 3 0 0 1-3 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 14v3M9 20h6M9.5 20c0-1.7.9-2.7 2.5-3 1.6.3 2.5 1.3 2.5 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  heart: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.3-8.8C1.2 8 3 4.8 6.5 4.4c2-.2 3.6.9 5.5 2.9 1.9-2 3.5-3.1 5.5-2.9 3.5.4 5.3 3.6 3.8 6.8C19 15.6 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  flask: '<svg viewBox="0 0 48 48"><path d="M19 4h10v11.2l9.4 17.6c1.7 3.2-.6 7.2-4.2 7.2H13.8c-3.6 0-5.9-4-4.2-7.2L19 15.2V4z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><path d="M16.5 26.5h15" stroke="currentColor" stroke-width="2.2"/></svg>',
+  book: '<svg viewBox="0 0 48 48"><path d="M6 10c6-3 12-3 18 0v28c-6-3-12-3-18 0V10z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M42 10c-6-3-12-3-18 0v28c6-3 12-3 18 0V10z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>'
+};
 
 /* =========================================================
    UTILIDADES
@@ -200,7 +213,6 @@ function generateExamQuestions(examType){
     const chosen = sample(pool, QUESTIONS_PER_EXAM);
     return chosen.map(makeVerbQuestion);
   }
-  // reading
   const chosen = sample(READING_POOL, QUESTIONS_PER_EXAM);
   return chosen.map(q => {
     if(q.type === "mc"){
@@ -222,25 +234,33 @@ const state = {
   answeredCurrent: false,
   timeLeftSeconds: 0,
   timerId: null,
-  startedAt: null
+  advanceTimerId: null
 };
 
 /* =========================================================
-   NAVEGACIÓN DE VISTAS
+   NAVEGACIÓN DE VISTAS (con animación "flotante")
    ========================================================= */
 const views = ["home", "config", "exam", "result", "history"];
 
 function showView(name){
   views.forEach(v => {
-    document.getElementById(`view-${v}`).classList.toggle("hidden", v !== name);
+    const el = document.getElementById(`view-${v}`);
+    el.classList.toggle("hidden", v !== name);
+    el.classList.remove("is-entering");
   });
+  const active = document.getElementById(`view-${name}`);
+  // fuerza reflow para poder re-disparar la animación cada vez
+  void active.offsetWidth;
+  active.classList.add("is-entering");
+
   if(name === "history") renderHistory();
 }
 
 document.querySelectorAll("[data-nav]").forEach(btn => {
   btn.addEventListener("click", () => {
-    if(btn.dataset.nav === "home" && state.timerId){
+    if(btn.dataset.nav === "home"){
       stopTimer();
+      clearAdvanceTimer();
     }
     showView(btn.dataset.nav);
   });
@@ -288,7 +308,6 @@ function startExam(){
   state.index = 0;
   state.correctCount = 0;
   state.timeLeftSeconds = state.durationMinutes * 60;
-  state.startedAt = Date.now();
 
   document.getElementById("exam-section-label").textContent =
     state.examType === "verbs" ? "Sección A · Verbos irregulares" : "Sección B · Reading & Grammar";
@@ -307,6 +326,7 @@ function startTimer(){
     updateTimerDisplay();
     if(state.timeLeftSeconds <= 0){
       stopTimer();
+      clearAdvanceTimer();
       finishExam();
     }
   }, 1000);
@@ -319,6 +339,13 @@ function stopTimer(){
   }
 }
 
+function clearAdvanceTimer(){
+  if(state.advanceTimerId){
+    clearTimeout(state.advanceTimerId);
+    state.advanceTimerId = null;
+  }
+}
+
 function updateTimerDisplay(){
   const el = document.getElementById("exam-timer");
   el.textContent = formatTime(Math.max(0, state.timeLeftSeconds));
@@ -326,19 +353,19 @@ function updateTimerDisplay(){
 }
 
 function updateBeaker(accuracy){
-  // Recorre la paleta de la reacción Briggs-Rauscher según el desempeño
   const liquid = document.getElementById("beaker-liquid");
   let color;
-  if(accuracy >= 0.85) color = "#3457a6";       // azul: casi perfecto
-  else if(accuracy >= 0.65) color = "#e4e0d2";  // incoloro/blanco: bien
+  if(accuracy >= 0.85) color = "#3d5fd6";       // azul: casi perfecto
+  else if(accuracy >= 0.65) color = "#efe9d8";  // incoloro/blanco: bien
   else if(accuracy >= 0.4) color = "#8f8b7c";   // gris: regular
-  else color = "#dc7a34";                        // naranja: hay que repasar
+  else color = "#e07a2e";                        // naranja: hay que repasar
   liquid.style.fill = color;
 }
 
 function renderQuestion(){
   const q = state.questions[state.index];
   state.answeredCurrent = false;
+  clearAdvanceTimer();
 
   document.getElementById("exam-progress-text").textContent =
     `Pregunta ${state.index + 1} / ${state.questions.length}`;
@@ -347,22 +374,30 @@ function renderQuestion(){
 
   document.getElementById("question-tag").textContent = q.tag;
   document.getElementById("question-prompt").textContent = q.prompt;
-  document.getElementById("question-feedback").textContent = "";
+  document.getElementById("question-typeicon").innerHTML = q.type === "mc" ? ICONS.list : ICONS.pencil;
+
+  const feedbackBox = document.getElementById("feedback-box");
+  feedbackBox.classList.add("hidden");
   document.getElementById("question-feedback").className = "feedback";
+  document.getElementById("question-feedback").textContent = "";
+  document.getElementById("advance-fill").className = "advance-bar__fill";
 
   const optionsWrap = document.getElementById("question-options");
   const textWrap = document.getElementById("question-textwrap");
   const textInput = document.getElementById("question-textinput");
+  const btnAnswer = document.getElementById("btn-answer");
 
   optionsWrap.innerHTML = "";
   textInput.value = "";
   textInput.className = "";
+  textInput.disabled = false;
+  btnAnswer.disabled = true;
 
-  const btnCheck = document.getElementById("btn-check");
-  const btnNext = document.getElementById("btn-next");
-  btnCheck.classList.remove("hidden");
-  btnNext.classList.add("hidden");
-  btnCheck.disabled = true;
+  // re-crear la card para relanzar la animación de entrada
+  const card = document.getElementById("question-card");
+  card.classList.remove("question-card");
+  void card.offsetWidth;
+  card.classList.add("question-card");
 
   if(q.type === "mc"){
     textWrap.classList.add("hidden");
@@ -372,88 +407,96 @@ function renderQuestion(){
       b.type = "button";
       b.className = "option";
       b.textContent = opt;
-      b.addEventListener("click", () => {
-        optionsWrap.querySelectorAll(".option").forEach(o => o.classList.remove("is-selected"));
-        b.classList.add("is-selected");
-        q._selected = opt;
-        btnCheck.disabled = false;
-      });
+      b.addEventListener("click", () => submitAnswer(opt));
       optionsWrap.appendChild(b);
     });
   } else {
     optionsWrap.classList.add("hidden");
     textWrap.classList.remove("hidden");
-    textInput.addEventListener("input", () => {
-      btnCheck.disabled = textInput.value.trim().length === 0;
-    }, { once: false });
-    setTimeout(() => textInput.focus(), 50);
+    setTimeout(() => textInput.focus(), 60);
   }
 }
 
-function checkAnswer(){
-  const q = state.questions[state.index];
-  if(state.answeredCurrent) return;
+document.getElementById("question-textinput").addEventListener("input", (e) => {
+  document.getElementById("btn-answer").disabled = e.target.value.trim().length === 0;
+});
 
+document.getElementById("question-textinput").addEventListener("keydown", (e) => {
+  if(e.key === "Enter" && !document.getElementById("btn-answer").disabled){
+    submitAnswer(document.getElementById("question-textinput").value);
+  }
+});
+
+document.getElementById("btn-answer").addEventListener("click", () => {
+  submitAnswer(document.getElementById("question-textinput").value);
+});
+
+function submitAnswer(userAnswer){
+  if(state.answeredCurrent) return;
+  state.answeredCurrent = true;
+
+  const q = state.questions[state.index];
   let isCorrect = false;
-  const optionsWrap = document.getElementById("question-options");
-  const textInput = document.getElementById("question-textinput");
   const feedback = document.getElementById("question-feedback");
 
   if(q.type === "mc"){
-    const selected = q._selected;
-    isCorrect = selected === q.correct;
+    const optionsWrap = document.getElementById("question-options");
+    isCorrect = userAnswer === q.correct;
     optionsWrap.querySelectorAll(".option").forEach(o => {
       o.disabled = true;
       if(o.textContent === q.correct) o.classList.add("is-correct");
-      else if(o.textContent === selected && !isCorrect) o.classList.add("is-wrong");
+      else if(o.textContent === userAnswer && !isCorrect) o.classList.add("is-wrong");
     });
   } else {
-    const userVal = normalize(textInput.value);
+    const textInput = document.getElementById("question-textinput");
+    const userVal = normalize(userAnswer);
     isCorrect = q.accept.some(acc => normalize(acc) === userVal);
     textInput.disabled = true;
     textInput.classList.add(isCorrect ? "is-correct" : "is-wrong");
-    if(!isCorrect){
-      feedback.textContent = `Respuesta correcta: ${q.accept[0]}`;
-    }
   }
 
   if(isCorrect){
     state.correctCount++;
-    feedback.textContent = feedback.textContent || "¡Correcto!";
+    feedback.textContent = "¡Correcto!";
     feedback.classList.add("ok");
   } else {
+    feedback.textContent = q.type === "text"
+      ? `Incorrecto. Respuesta correcta: ${q.accept[0]}`
+      : `Incorrecto. Respuesta correcta: ${q.correct}`;
     feedback.classList.add("bad");
   }
 
   updateBeaker(state.correctCount / (state.index + 1));
 
-  state.answeredCurrent = true;
-  document.getElementById("btn-check").classList.add("hidden");
+  const feedbackBox = document.getElementById("feedback-box");
+  feedbackBox.classList.remove("hidden");
   const btnNext = document.getElementById("btn-next");
-  btnNext.classList.remove("hidden");
-  btnNext.textContent = (state.index + 1 >= state.questions.length) ? "Ver resultados" : "Siguiente pregunta";
-  btnNext.focus();
+  btnNext.textContent = (state.index + 1 >= state.questions.length) ? "Ver resultados →" : "Siguiente ahora →";
+
+  const fill = document.getElementById("advance-fill");
+  fill.classList.remove("is-running");
+  void fill.offsetWidth;
+  fill.classList.add("is-running");
+
+  clearAdvanceTimer();
+  state.advanceTimerId = setTimeout(advanceQuestion, AUTO_ADVANCE_MS);
 }
 
-document.getElementById("btn-check").addEventListener("click", checkAnswer);
-
-document.getElementById("question-textinput").addEventListener("keydown", (e) => {
-  if(e.key === "Enter" && !document.getElementById("btn-check").disabled){
-    checkAnswer();
-  }
-});
-
-document.getElementById("btn-next").addEventListener("click", () => {
+function advanceQuestion(){
+  clearAdvanceTimer();
   state.index++;
   if(state.index >= state.questions.length){
     finishExam();
   } else {
     renderQuestion();
   }
-});
+}
+
+document.getElementById("btn-next").addEventListener("click", advanceQuestion);
 
 function finishExam(){
   stopTimer();
+  clearAdvanceTimer();
   document.getElementById("exam-progress-fill").style.width = "100%";
 
   const total = state.questions.length;
@@ -476,6 +519,7 @@ function renderResult(score20, passed, secondsUsed){
   document.getElementById("result-kicker").textContent =
     state.examType === "verbs" ? "Resultado · Sección A" : "Resultado · Sección B";
   document.getElementById("result-score-number").textContent = score20;
+  document.getElementById("result-icon").innerHTML = passed ? ICONS.trophy : ICONS.heart;
 
   const statusEl = document.getElementById("result-status");
   statusEl.textContent = passed ? "Aprobado" : "No aprobado";
@@ -530,10 +574,14 @@ function renderHistory(){
     const date = new Date(item.date);
     const dateStr = date.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" }) +
       " · " + date.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+    const icon = item.type === "verbs" ? ICONS.flask : ICONS.book;
 
     tr.innerHTML = `
       <td>${dateStr}</td>
-      <td>${item.type === "verbs" ? "A · Verbos" : "B · Reading"}</td>
+      <td><span style="display:inline-flex;align-items:center;gap:7px;">
+        <span style="width:18px;height:18px;color:${item.type === "verbs" ? "var(--blue)" : "var(--orange)"};display:inline-flex;">${icon}</span>
+        ${item.type === "verbs" ? "A · Verbos" : "B · Reading"}
+      </span></td>
       <td>${item.score} / 20</td>
       <td><span class="pill ${item.passed ? "pass" : "fail"}">${item.passed ? "Aprobado" : "No aprobado"}</span></td>
     `;
