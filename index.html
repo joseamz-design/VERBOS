@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Virtual · Simple Past</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="lab-frame">
+
+  <!-- ===== HEADER ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand__flask" viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M19 4h10v11.2l9.4 17.6c1.7 3.2-.6 7.2-4.2 7.2H13.8c-3.6 0-5.9-4-4.2-7.2L19 15.2V4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M16.5 26.5h15" stroke="currentColor" stroke-width="2.2"/>
+        <line x1="17" y1="4" x2="31" y2="4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+      <div class="brand__text">
+        <p class="eyebrow">Laboratorio de Inglés</p>
+        <h1>Examen Virtual · Simple Past</h1>
+      </div>
+    </div>
+    <nav class="topnav" aria-label="Navegación principal">
+      <button type="button" class="navbtn" data-nav="home">Inicio</button>
+      <button type="button" class="navbtn" data-nav="history">Historial</button>
+    </nav>
+  </header>
+
+  <!-- ===== HOME / MENU ===== -->
+  <main id="view-home" class="view">
+    <section class="intro">
+      <p class="intro__kicker">Antes de empezar</p>
+      <h2>Elige la sección que quieres rendir</h2>
+      <p class="intro__text">Cada intento genera preguntas nuevas y baraja las alternativas, así que ningún examen es idéntico al anterior. Necesitas al menos <strong>15 / 20</strong> para aprobar. Si no llegas, puedes reintentar las veces que quieras.</p>
+    </section>
+
+    <section class="cards">
+      <article class="card" data-type="verbs">
+        <div class="card__num">A</div>
+        <h3>40 Verbos Irregulares</h3>
+        <p>Se te pedirá el <em>past simple</em> y el <em>past participle</em> de los 40 verbos de tu lista, con 3 alternativas por pregunta.</p>
+        <ul class="card__meta">
+          <li>20 preguntas por intento</li>
+          <li>Opción múltiple</li>
+          <li>Banco de 80 preguntas posibles</li>
+        </ul>
+        <button type="button" class="btn btn--primary" data-start="verbs">Configurar examen</button>
+      </article>
+
+      <article class="card" data-type="reading">
+        <div class="card__num">B</div>
+        <h3>Reading &amp; Grammar</h3>
+        <p>Basado en la carta de Cesc, el experimento Briggs–Rauscher y los ejercicios de preguntas, huecos y orden de palabras.</p>
+        <ul class="card__meta">
+          <li>20 preguntas por intento</li>
+          <li>Opción múltiple y respuesta escrita</li>
+          <li>Banco de 50 preguntas posibles</li>
+        </ul>
+        <button type="button" class="btn btn--primary" data-start="reading">Configurar examen</button>
+      </article>
+    </section>
+  </main>
+
+  <!-- ===== CONFIG (duration) ===== -->
+  <main id="view-config" class="view hidden">
+    <section class="config-panel">
+      <p class="intro__kicker" id="config-kicker">Configuración</p>
+      <h2 id="config-title">Antes de comenzar</h2>
+      <p class="intro__text" id="config-desc"></p>
+
+      <label class="field" for="duration-input">
+        <span>Duración del examen (minutos)</span>
+        <input type="number" id="duration-input" min="1" max="120" value="10" inputmode="numeric">
+      </label>
+
+      <div class="config-rules">
+        <div class="config-rules__item">
+          <span class="config-rules__dot"></span>
+          20 preguntas, generadas al azar en cada intento
+        </div>
+        <div class="config-rules__item">
+          <span class="config-rules__dot"></span>
+          Nota mínima para aprobar: 15 / 20
+        </div>
+        <div class="config-rules__item">
+          <span class="config-rules__dot"></span>
+          Si se acaba el tiempo, el examen se entrega automáticamente
+        </div>
+      </div>
+
+      <div class="config-actions">
+        <button type="button" class="btn btn--ghost" data-nav="home">Volver</button>
+        <button type="button" class="btn btn--primary" id="btn-launch">Comenzar examen</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== EXAM ===== -->
+  <main id="view-exam" class="view hidden">
+    <section class="exam-hud">
+      <div class="hud-left">
+        <p class="hud-label" id="exam-section-label">Sección A</p>
+        <p class="hud-question" id="exam-progress-text">Pregunta 1 / 20</p>
+      </div>
+
+      <div class="beaker" aria-hidden="true">
+        <svg viewBox="0 0 60 80" class="beaker__svg">
+          <defs>
+            <clipPath id="beakerClip">
+              <path d="M22 4h16v18l12 34c2.4 5.4-1.5 11.4-7.4 11.4H17.4c-5.9 0-9.8-6-7.4-11.4l12-34V4z"/>
+            </clipPath>
+          </defs>
+          <rect id="beaker-liquid" x="0" y="20" width="60" height="60" clip-path="url(#beakerClip)"/>
+          <path d="M22 4h16v18l12 34c2.4 5.4-1.5 11.4-7.4 11.4H17.4c-5.9 0-9.8-6-7.4-11.4l12-34V4z" fill="none" stroke="var(--paper-2)" stroke-width="2.4" stroke-linejoin="round"/>
+          <line x1="20" y1="4" x2="40" y2="4" stroke="var(--paper-2)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <p class="beaker__label">precisión</p>
+      </div>
+
+      <div class="hud-right">
+        <p class="hud-label">Tiempo restante</p>
+        <p class="hud-timer" id="exam-timer">10:00</p>
+      </div>
+    </section>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="exam-progress-fill"></div>
+    </div>
+
+    <section class="question-card">
+      <p class="question-tag" id="question-tag">Verbo</p>
+      <h2 class="question-prompt" id="question-prompt">Cargando pregunta…</h2>
+
+      <div id="question-options" class="options"></div>
+
+      <div id="question-textwrap" class="text-answer hidden">
+        <input type="text" id="question-textinput" autocomplete="off" spellcheck="false" placeholder="Escribe tu respuesta…">
+      </div>
+
+      <p class="feedback" id="question-feedback"></p>
+
+      <div class="question-actions">
+        <button type="button" class="btn btn--primary" id="btn-check">Comprobar</button>
+        <button type="button" class="btn btn--primary hidden" id="btn-next">Siguiente pregunta</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== RESULT ===== -->
+  <main id="view-result" class="view hidden">
+    <section class="result-panel">
+      <p class="intro__kicker" id="result-kicker">Resultado</p>
+      <div class="result-score">
+        <span id="result-score-number">0</span><span class="result-score__of">/20</span>
+      </div>
+      <p class="result-status" id="result-status">Evaluando…</p>
+      <p class="result-message" id="result-message"></p>
+
+      <div class="result-breakdown">
+        <div>
+          <span id="result-correct">0</span>
+          <p>correctas</p>
+        </div>
+        <div>
+          <span id="result-incorrect">0</span>
+          <p>incorrectas</p>
+        </div>
+        <div>
+          <span id="result-time">0:00</span>
+          <p>tiempo usado</p>
+        </div>
+      </div>
+
+      <div class="config-actions">
+        <button type="button" class="btn btn--ghost" data-nav="home">Elegir otro examen</button>
+        <button type="button" class="btn btn--primary" id="btn-retry">Reintentar</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== HISTORY ===== -->
+  <main id="view-history" class="view hidden">
+    <section class="intro">
+      <p class="intro__kicker">Seguimiento</p>
+      <h2>Historial de intentos</h2>
+      <p class="intro__text">Aquí se acumulan todos tus resultados, guardados en este navegador.</p>
+    </section>
+
+    <section class="history-stats" id="history-stats"></section>
+
+    <section class="history-table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Sección</th>
+            <th>Nota</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+      <p class="history-empty hidden" id="history-empty">Todavía no rindes ningún examen. ¡Anímate a intentarlo!</p>
+    </section>
+
+    <div class="config-actions">
+      <button type="button" class="btn btn--ghost" id="btn-clear-history">Borrar historial</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Hecho a partir de tu material de clase · Briggs–Rauscher reaction 🧪</p>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
